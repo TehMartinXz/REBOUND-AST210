@@ -1,0 +1,644 @@
+%-----------------------------------------------------------------------
+%                                                                 aa.tex
+% AA vers. 9.3, LaTeX class for Astronomy & Astrophysics
+% Demonstration file
+%                                                       (c) EDP Sciences
+%-----------------------------------------------------------------------
+%
+%\documentclass[referee]{aa}    % for a referee version
+%\documentclass[onecolumn]{aa}  % for a paper on 1 column  
+%\documentclass[longauth]{aa}   % for long lists of authors and/or affiliations. 
+                                % This command displays the first eight authors on page 1
+                                % and shift the whole list after the references.
+                                % Ensure to separate each author with the \and command (see below)
+%\documentclass[letter]{aa}     % for the letters
+%\documentclass[bibyear]{aa}    % if the references are not structured
+                                % according to the author-year natbib style
+
+\documentclass{aa}
+
+\usepackage{graphicx}
+\usepackage{txfonts}
+\usepackage{lipsum}
+\usepackage{subcaption}         % necessary for continued figures, example in section 3
+                                % and appendix
+\usepackage{enumitem} % Required package for lists customization
+\usepackage{lscape}             % to rotate a single page table, example in appendix.
+                                % For landscape tables, see the longtable examples.
+\usepackage{placeins}           % useful with \FloatBarrier, to keep 
+                                % onecolumn floats from drifting to the next section
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage[options]{hyperref}
+% To add links in your PDF file, use the package "hyperref"
+% with options according to your LaTeX or PDFLaTeX drivers.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{float}
+\begin{document}
+
+\makeatletter
+\fancyhead[CO]{\aa@headfont\aa@titlerunning}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% if you use custom commands in your title,
+% ensure to check your title when submitting!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   \title{A Statistical View of TRAPPIST-1 Using Monte Carlo Simulations}
+
+   \subtitle{Stability Analysis and Parameter Restrictions}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Please separate each author with the \and command
+%
+% Please do not include ORCIDs next to author names.
+% Only ORCIDs authenticated by individual authors in EDPS
+% editorial system will be taken into account.
+% ORCIDs included here will be removed.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+   \author{Brakin Candia\inst{1}%,2}
+        \and Francisco Cid\inst{1}%,2}
+        \and Gonzalo Pérez\inst{1}%,2}
+        \and Martín Rubina\inst{1}%,2}
+        }
+
+   \institute{Departamento de Física, Universidad Técnica Federico Santa María, San Joaquín, Chile
+   %\and Great Basin Observatory, Great Basin National Park, Nevada, USA
+   %\and FSTT, 90000, Tanger, Morocco}
+   }
+
+   %\date{Received March 15, 2026}
+
+% \abstract{}{}{}{}{}
+% 5 {} token are mandatory
+ 
+  \abstract
+  % context heading (optional)
+  % {} leave it empty if necessary  
+  % ARCHIVo: ESTRUCTURA DE UN PAPER PARA TIPS DEL ABSTRACT
+   {TRAPPIST-1 is a compact system composed of a small red dwarf star and seven planets with Earth-like masses, all orbiting closer to their star than Mercury does to the Sun. In this work, we study the stability of the system using REBOUND N-body simulations and Monte Carlo experiments based on data from the NASA Exoplanet Archive. Instability was identified using a mutual-Hill-radius close-encounter threshold and a maximum-distance scattering threshold. We analyze the orbital hierarchy of the system and test its response to changes in eccentricity, mass, orbital period, inclination, and observational uncertainties over a short-term period of 100 years. The observational uncertainty experiments did not produce instability within the integration time span and our instability criteria. Mass and inclination also showed no instability in the short-term experiments, although extreme tests with twenty times the nominal mass of TRAPPIST-1e and strongly non-coplanar configurations became unstable during 1 Myr integrations. Eccentricity and orbital period produced the strongest short-term effects, with stable configurations preferentially concentrated at average eccentricities below $\sim0.2$, and only $29.95\%$ of configurations survived the broad orbital-period exploration. These results suggest that, for the model used and simulated timescales, stability does not arise from a single variable, but from the combined preservation of the compact orbital structure.}
+  % aims heading (mandatory)
+
+   %\keywords{Planetary Evolution --
+                %REBOUND --
+                %TRAPPIST-1 --
+                %Monte Carlo
+               %}
+
+   \maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\nolinenumbers
+\section{Introduction}
+\subsection{The TRAPPIST-1 System}
+% Caótico =/= inestable
+
+The TRAPPIST-1 system, located at an approximate distance of $12.43$ parsecs ($40.5$ light-years) from Earth, is centered by an ultracool dwarf star of spectral type M8.0V. The system was initially identified as a stellar object by the 2MASS survey in 1999 \citep{1999AAS...195.3401S}. Its planetary nature was subsequently revealed through transit photometry, beginning with the discovery of three Earth-sized planets in 2016 \citep{2016Natur.533..221G} using the TRAPPIST telescope \citep{2013EPSC....8..968J}, and culminating in the definitive confirmation of a seven-planet system, as detailed in \citet{2017Natur.542..456G}, during 2017 using NASA's Spitzer Space Telescope \citep{2007RScI...78a1302G} and ground-based observatories.
+
+The stellar parameters, which are fundamental in dictating the gravitational dynamics of the system, indicate a central body of very low mass and luminosity. Specifically, it possesses a mass ($M_\star$) of $\sim 0.089 M_{\odot}$, a radius ($R_\star$) of $\sim 0.119 R_{\odot}$, and an effective temperature ($T_{eff}$) of approximately 2566 K. Despite its size, comparable to that of Jupiter, its mass constitutes the central attractor around which a complex $N$-body problem unfolds.
+
+A compact system composed of seven confirmed exoplanets (designated b, c, d, e, f, g, and h) orbits the star. Measurements derived from Transit Timing Variations (TTVs), as cataloged in the \textit{NASA Exoplanet Archive} \citep{2013PASP..125..989A}, confirm that all seven bodies possess terrestrial or rocky characteristics. Planetary masses ($m_p$) range from $0.326 M_{\oplus}$ (planet h) to $1.374 M_{\oplus}$ (planet b), while their radii vary between $0.755 R_{\oplus}$ (planet h) and $1.129 R_{\oplus}$ (planet g).
+
+From the perspective of celestial mechanics, the most significant feature of the system is the reduced scale of its orbital architecture. The seven exoplanets orbit close to their host star, with the semi-major axis ($a$) of the innermost planet (TRAPPIST-1b) being merely $a \approx 0.0115$ AU, whereas that of the outermost planet (TRAPPIST-1h) is $a \approx 0.0619$ AU. Consequently, their orbital periods are noticeably short, ranging from 1.51 to 18.76 Earth days.
+
+The system exhibits a highly organized topology. All seven planets' orbits are nearly perfectly coplanar, with inclinations ($i$) very close to $90^\circ$ (between $89.68^\circ$ and $89.86^\circ$ depending on the planet) with respect to the plane of our sky, and display very low orbital eccentricities ($e$), on the order of $10^{-3}$ to $10^{-2}$. This combination of terrestrial masses, sub-Mercury distances, co-planarity, and quasi-circular orbits maximizes the influence of mutual gravitational perturbations, making TRAPPIST-1 an exceptional system for the numerical analysis of secular stability and resonant architectures. Note that all previously mentioned planetary and stellar parameters are sourced from \citet{2021PSJ.....2....1A} and \citet{2025ApJ...989..181P} respectively. This extreme configuration inevitably leads to the central question guiding this research: What makes the dynamical stability of a planetary system as compact as TRAPPIST-1 possible?
+
+\subsection{Data Selection}
+Initial conditions of the model were extracted from the \textit{NASA Exoplanet Archive}, adopting the observational solutions obtained in \citet{2021PSJ.....2....1A}. This dataset was preferred over previous reports such as \citet{2017Natur.542..456G} or \citet{2018A&A...613A..68G} because its rigorous analysis of TTVs significantly reduces uncertainties in dynamic masses and more strictly constrains eccentricities, which are critical variables for evaluating secular stability.
+
+The implemented numerical model encompasses the complete system configuration: the central star and the seven confirmed exoplanets. To initialize the $N$-body integrator, the stellar mass was obtained, along with the masses, semi-major axes, orbital periods, and eccentricities for each planet.
+
+% no usamos configuración totalmente coplanar
+%Observationally, the orbital inclinations vary between $89.56^\circ$ and $89.79^\circ$, resulting in relative mutual inclinations of less than $0.5^\circ$. Given this geometry, the numerical simplification of assuming initially perfectly coplanar orbits was adopted. This approximation is robust, as the gravitational perturbations perpendicular to the orbital plane are negligible compared to the intense coplanar resonant interactions, thereby reducing computational complexity without compromising physical validity.
+
+% métodos
+%Finally, the data were normalized to a canonical astrophysical unit system---solar masses ($M_{\odot}$), astronomical units (AU), and years---adjusting the gravitational constant accordingly to optimize floating-point precision during the integration.
+\subsection{Resonance}
+In this study, the near-resonant architecture of the TRAPPIST-1 system
+is used as an important reference for interpreting the stability
+experiments. Observationally, the seven planets form a complex multi-body
+resonant chain (Luger et al. 2017). This configuration is thought to help
+organize planetary conjunctions in a way that reduces the likelihood of
+close encounters that could be destructive within such a compact
+architecture (Gillon et al. 2017; Agol et al. 2021). The initial
+conditions place neighboring planets at orbital period ratios closely
+approximating integer relations: c:b ($\sim 8:5$), d:c ($\sim 5:3$),
+e:d ($\sim 3:2$), f:e ($\sim 3:2$), g:f ($\sim 4:3$), and h:g
+($\sim 3:2$) (Agol et al. 2021).
+
+Rather than a mere orbital characteristic, this near-resonant chain motivates the use of neighboring period ratios as a diagnostic of the orbital architecture. Since perturbations in the orbital periods can distort this organized structure, the temporal evolution of these period ratios provides a useful indicator of how far a configuration departs from the nominal system. Furthermore, this study evaluates the dynamical behavior of the system over both short- and extended integration timescales. To assess this behavior, the numerical models explore structural perturbations alongside the nominal orbital parameters. Specifically, the simulations investigate the system's response to variations in different physical parameters. By integrating the system under these diverse initial conditions, monitoring the neighboring period ratios allows us to compare configurations that preserve the compact period-ratio architecture with those that trigger the instability criteria. Consequently, this multi-parameter analysis provides a quantitative way to constrain the conditions that allow the modeled system to survive over the integration windows.
+
+\subsection{REBOUND as an N-Body Integrator}
+% Mencionar que hay diferentes tipos de integradores; Alternativas a REBOUND; Por qué REBOUND es buena opción; Hablar sobre que hay diferentes clases de integradores en REBOUND (Symplectic integrators, Hybrid reversible integrators, Hybrid symplectic integrators, High order symplectic integrators, y High accuracy non-symplectic integrator), y que usaremos WHFast porque nos importa saber cuándo un sistema se vuelve inestable, mas no lo que ocurre después de esto (para eso podemos usar IAS15 o MERCURIUS por ejemplo). https://rebound.hanno-rein.de/
+
+The numerical integration of the orbital evolution of the TRAPPIST-1 system was performed using REBOUND, an open-source software package specialized in high-precision $N$-body simulations \citep{2012A&A...537A.128R}. Designed specifically for celestial mechanics problems, this integrator allows for the computation of the gravitational trajectories of multiple interacting masses over extensive timescales. In this study, the computational environment was configured to simulate the mutual interactions between the central star and the seven exoplanets of the system.%, continuously tracking the variations in the orbital parameters necessary to evaluate the preservation of the resonant chain previously described.
+
+Because the physical and orbital parameters derived from astronomical observations possess inherent uncertainties, a single simulation based exclusively on nominal values is insufficient to characterize the dynamical behavior of the system. For this reason, a statistical approach was implemented using the Monte Carlo method \citep{Metropolis01091949}. This technique consists of generating and executing an ensemble of independent simulations in which the initial conditions (such as planetary masses, eccentricities, and inclinations) are randomly sampled within different testing margins (such as parameter uncertainties). The application of this method provides the analytical framework required to explore the parameter space, allowing for the identification of the physical configurations that define the boundary between orbital stability and instability. Further explanations of our usage of REBOUND and the Monte Carlo method are available at Sections \ref{subsec:stability rebound} and \ref{subsec:monte carlo}.
+
+
+\section{Methods}
+\label{sec:methods}
+\subsection{Defining Stability Criteria for TRAPPIST-1}
+% Radio de Hill
+\label{subsec:stability_criteria}
+One of our goals is to analyze what orbital parameters have a greater impact on TRAPPIST-1's stability. For our analysis, we used conservative interpretations of the \textit{Mutual Hill Radius} criterion and a \textit{Deep Scattering} criterion to determine when a simulation becomes unstable.
+
+The mutual Hill radius ($R_H$) between two planets, as defined in \citet{1996Icar..119..261C}, is given by
+
+\begin{equation}
+    R_H = \left(\frac{m_1+m_2}{3M_\star}\right)^{1/3}\left(\frac{a_1+a_2}{2}\right)
+    \label{eq:hill_radius}
+\end{equation}
+
+where $m_1$ and $m_2$ are the planetary masses, $a_1$ and $a_2$ are the planetary semi-major axes, and $M_\star$ is the central body mass (in this case, the star). 
+
+Note that although \citet{1996Icar..119..261C} defines a critical value of the semi-major axes difference measured in units of the planets' mutual Hill radius (with $\Delta_{cr}=(a_2-a_1)/R_H\approx 2\sqrt{3}$), due to TRAPPIST-1's complex chain of resonance which maintains the system long-term stable \citep{2017NatAs...1E.129L} even considering its chaotic nature, we chose a more conservative limit of
+
+\begin{equation}
+    d \leq R_H
+\end{equation}
+
+where $d$ is the distance at any given time between two neighboring planets. If two planets come closer to each other than their mutual Hill radius, their gravitational forces will prevail over the tidal forces of their star, which causes a disruption in the chain of resonance, likely destabilizing the system.
+
+We also defined a ``deep scattering'' criterion as what we considered an upper conservative limit for scattering events, which also coincides with the definition of an ejected particle in \citet{2018MNRAS.479.2649K},
+
+\begin{equation}
+    R_{COM} \geq 100 \times a_h(1+e_h)
+\end{equation}
+
+where $R_{COM}$ is the distance of any object from the center of mass of the system, while $a_h$ and $e_h$ are the semi-major axis and eccentricity of TRAPPIST-1h. Note that both of our criteria were selected with physical and computational limitations in mind, since one of our goals is to characterize the stability of the whole system by iterating over multiple simulations.
+% These criteria were also chosen to explore how potential disruptions to TRAPPIST-1's MMR could affect the stability of the system, as these values function independently from the period ratios between each planet pair.
+
+\subsection{Characterizing the system's Stability using REBOUND}
+\label{subsec:stability rebound}
+%We used REBOUND \citep{2012A&A...537A.128R} as an N-body code to allow for efficient and accurate simulations of TRAPPIST-1. 
+There are many integrators available for REBOUND; however, we focused on two. The (1) High accuracy non-symplectic integrator with adaptive time-stepping (\textit{IAS15}), and (2) REBOUND's implementation of the Wisdom-Holman \citep{1991AJ....102.1528W} symplectic integrator (\textit{WHFast}). Because of computational limitations, most of our analysis is based on simulations done with \textit{WHFast}; however, as shown in Table \ref{tab:whfast_vs_ias15}, \textit{WHFast}'s ability to detect unstable configurations is comparable to that of \textit{IAS15} while providing nearly a 10x simulation speedup.
+
+Our base REBOUND configuration consists of time, distance, and mass units of days, AU, and $M_\odot$ respectively; a timestep ($dt$) of $0.0151082\times2$ days when using \textit{WHFast}, and a $BJD_{TDB}-2,450,000=7257.93115525$ days date to match that of \cite{2021PSJ.....2....1A}'s, whose osculating Jacobi elements ($P$, $t_0$, $e\cos \omega$, and $e \sin \omega$) we used for our simulations, as well as their inclinations and masses reported at the NASA Exoplanet Archive. Eccentricities, times of pericenter passage ($T$), and argument of periapsis ($\omega$) were analytically derived from the Jacobi elements, with $T$ and $\omega$ being obtained by solving Kepler's equation at the moment of inferior conjunction (true anomaly $f=\pi/2-\omega$). By default, we set our simulations to use the reported/calculated nominal values of each orbital parameter, and simulation exits (\texttt{sim.exit\_min\_distance} / \texttt{sim.exit\_max\_distance}) were set up to match our instability criteria mentioned in Section \ref{subsec:stability_criteria}.
+
+%%%%%% HOLA HABLAR SOBRE EL SIM.EXIT DEL RHILL MÍNIMO
+
+Our selection of $0.0151082\times2$ days as a base timestep was not arbitrary. \textit{WHFast}'s speed increases significantly given longer timesteps; however, this can also decrease the integrator's precision. An upper limit of one orbital period (for whichever particle has the lowest orbital period in a simulation) is suggested for \textit{WHFast} in REBOUND's documentation, however, since we prioritize precision, we chose this conservative timestep, as $0.0151082$ days is $1\%$ of the nominal period reported for TRAPPIST-1b (the planet with the lowest orbital period in the system), and doubling it (hence the $\times2$ factor) showed to nearly double the speed while keeping high accuracy, which was necessary due to computational limitations.
+
+\subsection{The Monte Carlo Method to Explore TRAPPIST-1's Parameter Space}
+\label{subsec:monte carlo}
+% Hablar sobre cómo la variación de parámetros es implícita en Monte Carlo
+% hablar sobre el 10*dt de WHFast como el límite inferior del periodo-theo para la variación de parámetros
+% no intentamos tener en cuenta las correlaciones de los parámetros orbitales
+We used the Monte Carlo method by iterating over our REBOUND setup (detailed in Section \ref{subsec:stability rebound}) to explore TRAPPIST-1's parameter space and find the physical constraints that allow the system to remain short-term stable. The variable parameters (that depend on the specific configuration of each experiment) are: Period, time of transit ($t_0$), the eccentricity vectors ($e\cos\omega$, $e\sin\omega$), inclination, planetary masses, stellar mass, as well as experimental values of the Period ($P_{exp}$), eccentricity ($e_{exp}$), inclination ($i_{exp}$), and planetary masses ($m_{p,exp}$). All nominal values can be found in Table \ref{tab:trappist1_params}.
+
+We designed several parameter exploration experiments, iterating in normal (Gaussian) and uniform (equiprobable) distributions over different configurations of parameters, such as: 
+
+\begin{itemize}[label=$\bullet$]
+    \item All planetary parameters ($1\sigma$, $3\sigma$, $5\sigma$): Normal variation of all reported planetary parameters ($P$, $t_0$, $e\cos\omega$, $e\sin\omega$, $i$, $m_p$) considering a standard deviation of $1\sigma$, $3\sigma$, or $5\sigma$.
+    \item Single planetary parameter: Normal (using reported values) or uniform (using experimental values) variations of a single planetary parameter (except for a normal variation of the eccentricity, which requires varying $e\cos\omega$ and/or $e\sin\omega$).
+\end{itemize}
+
+Normal variations are used to test TRAPPIST-1's tolerance to ``small'' (within uncertainty) variations. In contrast, uniform variations are used to experiment outside the nominal parameter space by allowing us to see the effects of different values on the stability of the system within our integration time span. Note that both types of configurations can also include an independent variation of $M_\star$. It is also important to mention that our stability criteria are dynamically calculated using the parameters of each simulation.
+
+A baseline integration time of $100$ Earth years was initially chosen for our Monte Carlo parameter sweeps due to the scale of iterations needed for accurate Monte Carlo results, but it is important to mention that this time translates to $\sim1944$ orbits of TRAPPIST-1h (and $\sim24159$ of TRAPPIST-1b) based on the nominal value of its period, and it is also adequate considering that the characteristic timescale of the TTVs of the outer five planets \citep{2021PSJ.....2....1A} is $P_{TTV}\approx491\pm5$ days ($\sim1.35$ years), which means that $100$ years represents $\sim74$ resonant interaction cycles between the planets, allowing us to detect most short-term dynamical instabilities.
+
+It is worth noting that, since our primary goal with these variations of parameters is to explore the parameter space and identify fundamental physical constraints on the stability of TRAPPIST-1, we do not attempt to account for the correlations given by the covariance matrix that resulted from \cite{2021PSJ.....2....1A}'s Markov chain Monte Carlo (MCMC) fit when perturbing different Jacobi elements and orbital parameters.
+
+\subsection{Long-term Stability Tests}
+
+We also experimented with single, long-term ($1$ Myr) simulations (using \textit{WHFast}) of specific edge-case configurations to explore the long-term stability of TRAPPIST-1. These experiments were heavily motivated by the results shown in Tables \ref{tab-appendix:inclination_exploration} and \ref{tab-appendix:mass_exploration}, where, despite randomizing the planetary masses ($m_p \in [0, 2m_p]$) and inclinations ($\cos i \in [-1,1]$), our simulations showed no instability within the $100$ year integration window.
+
+To investigate whether this per-parameter stability is a dynamical characteristic of TRAPPIST-1 or an illusion due to the integration window, we extended the integration time to 1 Myr in individual experiments for each planet using an inclination $i=-0.217^\circ$ (which is perpendicular to the average nominal inclination of the entire system), and experiments where the mass of each planet was doubled from their nominal values.
+
+
+\section{Results \& Discussion}
+\label{sec:results}
+
+%This section presents the dynamical behavior of TRAPPIST-1 and the results of the parameter-exploration experiments. We first analyze the nominal system through orbital diagnostics, including the orbital architecture, semi-major axis evolution, eccentricity evolution, and period-ratio comparison. We then present Monte Carlo experiments incorporating observational uncertainties, followed by controlled perturbation tests designed to explore regions outside the nominal parameter space.
+
+\subsection{Orbital Diagnostics of the Nominal Configuration}
+\label{subsec:3.1}
+
+%The orbital diagnostics are used to examine the dynamical behavior of the nominal configuration. They include the orbital representation of the system, the temporal evolution of the semi-major axes and eccentricities, and the period ratios between neighboring planets. Together, these diagnostics allow us to check whether the simulated nominal system preserves its radial ordering, low eccentricities, and near-simple period ratios.
+
+%This nominal behavior provides the reference needed to interpret the later stability experiments. While the Monte Carlo and controlled perturbation tests quantify whether sampled configurations survive under parameter variations, the orbital diagnostics show how the reference configuration itself evolves during the integration.
+
+Before analyzing the perturbed configurations, we establish the baseline stability of the nominal system by monitoring its orbital parameters and resonances over 100 years.
+
+\subsubsection{Orbital Representation of the System}
+
+\begin{figure}%[H]
+%\vspace{-1.5cm}
+\centering
+\includegraphics[width=\columnwidth]{figures/trappist1_xz_corregido.pdf}
+\caption{Orbital representation of the TRAPPIST-1 system, constructed from the observational parameters reported by Agol et al. (2021). Due to the nominal nearly-coplanar inclination of $\sim90^\circ$, this figure was rendered from above the XZ plane.}
+\label{fig:orbit_representation}
+%\vspace{-1.5cm}
+\end{figure}
+
+As shown in Figure~\ref{fig:orbit_representation}, the planets keep the expected radial order, from the innermost to the outermost orbit. The system, therefore, appears compact and nested in the nominal configuration, with no visible orbital crossing in the plotted projection. The orbital separations also remain clearly organized within the scale of the figure.
+
+This figure is useful mainly as a geometric check of the initial conditions used in the integrations. It does not prove dynamical stability by itself, but it does show that the ``Agol-based'' configuration \citep{2021PSJ.....2....1A} starts from an ordered architecture that can be modeled consistently in REBOUND. Together with the short-term survival of the nominal integration, this makes the observational solution a meaningful dynamical reference for the rest of the analysis. This point matters because the Monte Carlo experiments depend on whether perturbations preserve or break this initial radial ordering.
+
+\subsubsection{Semi-major Axis Evolution}
+
+
+\begin{figure}%[H]
+\centering
+\includegraphics[width=\columnwidth]{figures/semimajor_axis_vs_time.pdf}
+\caption{Temporal evolution of the semi-major axes for the nominal system.}
+\label{fig:a_vs_t}
+\end{figure}
+
+The semi-major axes remain nearly constant throughout integration. For clarity, Figure \ref{fig:a_vs_t} shows their temporal evolution during the first 10 year. No visible systematic change in orbital size or radial ordering is observed, indicating that the nominal configuration preserves its compact orbital hierarchy over the interval shown.
+
+Since the semi-major axis is directly related to the orbital energy, the absence of a clear drift suggests that no strong energy exchange, scattering event, or planet migration affects the system during the integration.
+
+The near-constant behavior of $a(t)$ therefore only shows that the baseline set is well-behaved over the diagnostic interval. It does not determine how far the radial architecture can be displaced before instability appears. This question is addressed later through the controlled period-perturbation experiment.
+
+
+\subsubsection{Eccentricity Evolution}
+
+
+\begin{figure}%[H]
+\centering
+\includegraphics[width=\columnwidth]{figures/eccentricity_vs_time.pdf}
+\caption{Temporal evolution of the orbital eccentricities for the nominal configuration during an integration time of 10 years.}
+\label{fig:e_vs_t}
+\end{figure}
+
+The eccentricities remain low and bounded throughout the interval shown in Figure \ref{fig:e_vs_t}. The evolution is oscillatory rather than divergent: no planet shows a visible systematic increase in eccentricity, and all values remain below approximately $e \sim 0.02$. This behavior is consistent with the low-eccentricity reported for TRAPPIST-1 by \citet{2021PSJ.....2....1A}, and with previous dynamical solutions in which the eccentricities remain low during long integrations \citep{2018A&A...613A..68G}.
+
+The bounded oscillations indicate that the system does not develop noticeable eccentricity growth during the diagnostic interval. In particular, the small eccentricity variations observed here are not sufficient to trigger short-term instability.
+
+
+\subsubsection{Period-Ratio Comparison}
+\label{sec:3.1.4}
+
+The period ratios of neighboring planets are computed from the nominal configuration to provide a reference for the period-perturbation experiments discussed below. Through these ratios, we see how close the simulated nominal structure is to nearby simple period ratios.
+
+\begin{table}%[H]
+\centering
+\caption{Nominal period ratios between neighboring planets and their distance from nearby simple values.}
+\label{tab:period_ratios_nominal}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrr}
+\hline
+Planet pair & Simple ratio & Simple value & Nominal ratio & Distance [\%] \\
+\hline
+c/b & $8:5$ & 1.6000 & 1.6031 & 0.19 \\
+d/c & $5:3$ & 1.6667 & 1.6719 & 0.31 \\
+e/d & $3:2$ & 1.5000 & 1.5067 & 0.45 \\
+f/e & $3:2$ & 1.5000 & 1.5092 & 0.61 \\
+g/f & $4:3$ & 1.3333 & 1.3416 & 0.62 \\
+h/g & $3:2$ & 1.5000 & 1.5198 & 1.32 \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+Table \ref{tab:period_ratios_nominal} compares the nominal period ratios with the low-order neighboring ratios associated with the TRAPPIST-1 resonant chain \citep{2017ApJ...840L..19T}. Meanwhile, Figure \ref{fig:period_ratios} shows how the period ratios have a near-constant (with small amplitude oscillations) behavior over the 100 years integration. The full architecture also involves three-body Laplace relations among adjacent triplets, as discussed by \citet{2017NatAs...1E.129L}. Here we focus on pairwise period ratios as a simpler diagnostic of the nominal near-perfectly-resonant architecture, while noting that period perturbations also modify the corresponding three-body combinations.
+
+\begin{figure}%[H]
+\centering
+\includegraphics[width=\columnwidth]{figures/trappist1_period_ratios_ias15.pdf}
+\caption{Temporal evolution of the period ratios for a 100 year integration using the nominal, default configuration.}
+\label{fig:period_ratios}
+\end{figure}
+
+%The values in Table~\ref{tab:period_ratios_nominal} show that the adopted nominal configuration is indeed close to the expected low-order neighboring commensurabilities. This provides a useful reference for interpreting the period-perturbation experiment. 
+
+\subsection{Short-Term Stability under Observational Uncertainties}
+\label{subsec:3.2}
+
+The Monte Carlo analysis quantifies the short-term stability of the simulated configurations over a 100 years integration window, with the selected parameters varied up to one, three, and five times their observational uncertainties ($1\sigma$, $3\sigma$, and $5\sigma$). The experiments include individual runs, where one parameter or subsystem was varied at a time, and joint runs, where all selected parameters were varied simultaneously.
+
+\begin{table}%[H]
+\centering
+\caption{Stable fraction for the observational Monte Carlo experiments at $1\sigma$, $3\sigma$ and $5\sigma$. Each configuration was integrated for 100 years.}
+\label{tab:stability_noise_5sigma}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrr}
+\hline
+Experiment & $N_{\rm sim}$ & $N_{\rm unstable}$ & Stable fraction \\
+\hline
+All parameters & 10000 & 0 & 1 \\
+Outer subsystem & 10000 & 0 & 1 \\
+Inner subsystem & 10000 & 0 & 1 \\
+Calculated eccentricity & 10000 & 0 & 1 \\
+Orbital period & 10000 & 0 & 1 \\
+Planetary masses & 10000 & 0 & 1 \\
+Stellar mass & 10000 & 0 & 1 \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+As shown in Table \ref{tab:stability_noise_5sigma}, all sampled configurations survived the integration window. No simulation triggered our instability criteria. Therefore, within the explored observational uncertainty ranges, the TRAPPIST-1 observational configuration does not show great short-term instability. This result is consistent with the semi-major axis diagnostic of the nominal configuration, as the reference system shows no visible drift in orbital size or radial ordering, and the observational perturbations are not large enough to destroy the system.
+
+Since all stable fractions are equal to $1$, these experiments do not identify a dominant destabilizing parameter. Variations in orbital period, planetary mass, stellar mass, calculated eccentricity (from $e\cos\omega$ and $e\sin\omega$), and the inner or outer subsystems all preserve the compact architecture over the integration time. %This result should therefore be interpreted as short-term stability, though not as proof of long-term stability.
+
+
+\subsection{Controlled Parameter Exploration}
+\label{subsec:3.3}
+
+Since the observational Monte Carlo experiments showed no short-term instability within the uncertainty ranges, we performed additional perturbation experiments. These tests are not derived from observational errors; instead, they explore broader parameter ranges to identify which parameters most strongly affect the stability of TRAPPIST-1 during the integration windows. The following experiments probe the dynamical tolerance of the system beyond the nominal observational solution and help delimit the region of parameter space compatible with short-term survival.
+
+\subsubsection{Eccentricity perturbations}
+
+Eccentricity, in compact multi-planetary systems, controls the radial excursion of each orbit. Since TRAPPIST-1 is reported to have low eccentricities for its planets, the nominal architecture provides a natural reference to test how important this parameter is for short-term stability \citep{2021PSJ.....2....1A}. We therefore explore how strongly the stability of TRAPPIST-1 depends on variations away from its reported low-eccentricity. In these experiments, eccentricities were sampled over the broad interval $0 \leq e < 1$, either for all planets simultaneously or for one planet at a time.
+
+\begin{table}%[H]
+\centering
+\caption{Stability results for the exploratory eccentricity perturbations. Each configuration was integrated for 100 years. Individual-planet experiments consisted of $10^4$ simulations, while the simultaneous all-planet experiment was iterated over $10^6$ simulations. $N_{\rm st}$, $N_{\rm close}$, and $N_{\rm esc}$ denote the numbers of stable, close-encounter, and escape configurations, respectively. The columns $e_{\rm st,min}$, $e_{\rm st,max}$, and $\tilde{e}_{\rm st}$ report the minimum, maximum, and median eccentricity of the stable configurations, while $\langle e\rangle_{\rm close}$ and $\langle e\rangle_{\rm esc}$ report the mean eccentricity of the unstable configurations in each channel. For individual-planet experiments, $e$ is the eccentricity of the perturbed planet; for the simultaneous all-planet experiment, it is the average eccentricity of the seven planets in each simulation.}
+\label{tab:eccentricity_exploration}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.95}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrrrrr}
+\hline
+Exp. & $N_{\rm st}$ & $e_{\rm st,min}$ & $e_{\rm st,max}$ & $\tilde{e}_{\rm st}$ & $N_{\rm close}$ & $\langle e\rangle_{\rm close}$ & $N_{\rm esc}$ & $\langle e\rangle_{\rm esc}$ \\
+\hline
+All & 1    & 0.086    & 0.086 & 0.086 & 989455 & 0.500 & 10544 & 0.544 \\
+b   & 3322 & $<0.001$ & 0.866 & 0.161 & 6661   & 0.661 & 17    & 0.862 \\
+c   & 2035 & $<0.001$ & 0.356 & 0.101 & 7862   & 0.599 & 103   & 0.942 \\
+d   & 2442 & $<0.001$ & 0.947 & 0.119 & 7349   & 0.610 & 209   & 0.977 \\
+e   & 2052 & $<0.001$ & 0.246 & 0.103 & 7816   & 0.596 & 132   & 0.955 \\
+f   & 1515 & $<0.001$ & 0.282 & 0.074 & 8348   & 0.569 & 137   & 0.973 \\
+g   & 1344 & $<0.001$ & 0.291 & 0.067 & 8489   & 0.558 & 167   & 0.976 \\
+h   & 2366 & $<0.001$ & 0.949 & 0.125 & 7465   & 0.609 & 169   & 0.980 \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+The eccentricity exploration shows that the stability of the system is strongly affected by high eccentricities. When the eccentricities of all planets were varied simultaneously, only one configuration out of $10^6$ remained stable. This indicates that the compact architecture is highly sensitive to joint eccentricity perturbations: even if some planets can tolerate relatively high individual eccentricities, simultaneous radial excursions across the full system almost always lead to instability.
+
+For the single-planet experiments, the stable fractions are larger but still limited. In all cases except for TRAPPIST-1b, fewer than one-quarter of the simulations remained stable. This confirms that eccentricity is one of the most dynamically restrictive parameters in the parameter space, even at these short-term integration times. The median eccentricities of the stable configurations remain low, ranging from $\tilde{e}_{\rm st}=0.067$ for planet g to $\tilde{e}_{\rm st}=0.161$ for planet b. Therefore, although some isolated high-eccentricity configurations survive, they are not representative of the stable population. Stable configurations are concentrated at low eccentricities.
+
+The dominant instability indicator is the close-encounter criterion. For every experiment, close encounters are much more frequent than escapes, which is expected in a compact multi-planetary system. Increasing eccentricity enlarges the radial excursion of each orbit, making neighboring planets approach one another before any body reaches the escape threshold. In the individual-planet experiments, $\langle e\rangle_{\rm esc}$ is systematically higher than $\langle e\rangle_{\rm close}$, indicating that escape requires more extreme perturbations. In the simultaneous all-planet experiment, however, $\langle e\rangle_{\rm esc}=0.544$ is lower than in the individual-planet experiments. This suggests that when all eccentricities are increased at the same time, the system can become globally unstable before any single planet reaches the very high eccentricities associated with escapes in the individual experiments.
+
+The differences between planets also suggest that not all eccentricity perturbations affect the system in the same way. Planets f and g produce the lowest stable fractions, while planet b produces the highest one. This does not show a simple monotonic trend with distance from the star, since neither the innermost nor the outermost planets are uniformly the most destabilizing. A possible interpretation is that the sensitivity to eccentricity is connected not only to orbital location, but also to how each planet participates in the compact near-resonant architecture. Determining whether the most restrictive eccentricity perturbations correspond to specific resonant links would require a more detailed analysis of period ratios and resonant angles, but the present results already show that eccentricity perturbations constrain the viable parameter space strongly.
+
+\subsubsection{Period Perturbations}
+
+The orbital period is a key parameter for TRAPPIST-1 because it directly determines the period ratios between neighboring planets and therefore the resonant architecture of the system. This choice is motivated by the resonant-chain architecture previously discussed, in which the period ratios and three-body Laplace relations play a central role in the dynamical structure of TRAPPIST-1 \citep{2017NatAs...1E.129L}. For this reason, perturbing the orbital periods allows us to test how strongly the short-term stability of the system depends on preserving its resonant structure, whether stable configurations require near-exact period relationships or tolerate broader departures from the nominal architecture, and whether some neighboring planetary relationships are dynamically more restrictive than others.
+
+\begin{table}%[H]
+\centering
+\caption{Stability results for the exploratory orbital-period perturbations. Each configuration was integrated for 100 years, with $10^4$ simulations per experiment. Periods were sampled from a lower bound equal to 20 times the timestep used as reference for \textit{WHFast}, up to twice the nominal period of the perturbed planet.}
+\label{tab:period_exploration}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrr}
+\hline
+Experiment & $N_{\rm sim}$ & $N_{\rm close}$ & $N_{\rm esc}$ & Stable fraction \\
+\hline
+All planets & 10000 & 7003 & 2 & 0.2995 \\
+b           & 10000 & 2244 & 0 & 0.7756 \\
+c           & 10000 & 3009 & 0 & 0.6991 \\
+d           & 10000 & 3340 & 0 & 0.6660 \\
+e           & 10000 & 4546 & 0 & 0.5454 \\
+f           & 10000 & 4745 & 0 & 0.5255 \\
+g           & 10000 & 4091 & 0 & 0.5909 \\
+h           & 10000 & 2163 & 0 & 0.7837 \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+The period exploration shows that the short-term stability of the system is also sensitive to high variations from the nominal orbital period. When the periods of all planets are varied simultaneously, only $29.95\%$ of the configurations remain stable. This is a strong effect, but it should be interpreted in the context of the broad exploratory range used in this experiment, rather than as a fixed fractional perturbation around the nominal periods. For this reason, the stable fractions should not be directly ranked against those of the eccentricity experiment, since the sampled ranges are not equivalent. What can be concluded is that sufficiently large departures from the nominal orbital periods can strongly destabilize the compact near-commensurate architecture.
+
+For the single-planet experiments, all stable fractions remain above $50\%$, indicating that isolated period perturbations are less destructive than the simultaneous perturbation of all planets, where $7005$ out of $10000$ configurations become unstable. However, the result is still dynamically significant, since changing one orbital period over the explored range produces a large number of close encounters. This contrasts with the observational Monte Carlo runs, where period variations within uncertainties produced no instability during the integration period, likely because the observational period errors are too small to displace the system significantly from its nominal resonant form.
+
+As with the eccentricity perturbations, the close-encounter criterion strongly dominates over escapes, confirming that period variations primarily destabilize the system by inducing orbit crossings rather than ejections.
+
+The planet-to-planet differences suggest that not all period perturbations affect the chain in the same way. The largest stable fractions occur when perturbing the end planets, b and h, while the lowest stable fractions occur for planets e, f, and g. This pattern is consistent with the structure discussed in Section \ref{sec:3.1.4}, where perturbing an end planet modifies only one adjacent period ratio, whereas perturbing a middle planet modifies two neighboring ratios and also affects the corresponding three-body combinations. Thus, the lower stable fractions in the middle part of the chain suggest that the short-term stability of TRAPPIST-1 is more sensitive to perturbations that distort several adjacent links of the period-ratio architecture simultaneously.
+
+
+For a neighboring ratio $R=P_{\rm out}/P_{\rm in}$, a small perturbation gives $\Delta R/R \simeq \Delta P_{\rm out}/P_{\rm out}-\Delta P_{\rm in}/P_{\rm in}$. Therefore, the effect of a period perturbation on a neighboring ratio depends on the fractional change of the perturbed period. Since the sampled period range is not the same in fractional terms for all planets, the different stable fractions may reflect both the location of the perturbed planet within the coupled chain and the specific fractional range explored for that planet. Thus, the lower stable fractions for planets e, f, and g suggest that perturbations in the middle of the chain are more disruptive, but this trend should not be interpreted as a purely geometric effect of the planet's position alone.
+
+\subsubsection{Mass Perturbations}
+
+Planetary masses determine the strength of the mutual gravitational perturbations between planets. In a compact system such as TRAPPIST-1, increasing the mass of a planet could, in principle, enhance the dynamical coupling with its neighbors and make the system more susceptible to close encounters. We therefore use mass perturbations to test whether changes in the gravitational strength of individual planets are sufficient to destabilize the architecture.
+
+\begin{table}%[H]
+\centering
+\caption{Mass-perturbation tests. The first row summarizes the 100 years uniform mass exploration, in which planetary masses were sampled over $0\leq m_p\leq2m_{p,\rm nominal}$ both simultaneously and one planet at a time. The following rows show additional 1 Myr control runs in which one planetary mass was doubled while all other parameters were kept nominal. The final row shows an extreme control case, $m_e\rightarrow20m_e$, included only to verify that sufficiently large mass perturbations can trigger instability. The detailed 100 years uniform mass exploration is reported in Table \ref{tab-appendix:mass_exploration}.
+}
+\label{tab:mass_perturbations}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lllll}
+\hline
+Experiment & Perturbation & Time & Outcome & $t_{\rm inst}$ \\
+\hline
+Mass MC & $0\leq m_p\leq2m_{p,\rm nominal}$ & 100 years & Stable & -- \\
+Mass b & $2m_b$ & 1 Myr & Stable & -- \\
+Mass c & $2m_c$ & 1 Myr & Stable & -- \\
+Mass d & $2m_d$ & 1 Myr & Stable & -- \\
+Mass e & $2m_e$ & 1 Myr & Stable & -- \\
+Mass f & $2m_f$ & 1 Myr & Stable & -- \\
+Mass g & $2m_g$ & 1 Myr & Stable & -- \\
+Mass h & $2m_h$ & 1 Myr & Stable & -- \\
+Control & $20m_e$ & 1 Myr & Close f--g & $1.46\times10^4$ yr \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+The mass exploration shows that neither the 100 years uniform mass runs nor the individual $2m_p$ tests produced unstable configurations. This indicates that mass variations over the explored range are not enough to rule out short-term stability. In terms of the mutual Hill radius, even doubling one planetary mass only produces a limited increase in $R_H$, because $R_H$ depends on mass as $m^{1/3}$. Thus, these perturbations increase the gravitational coupling between planets, but not enough to generate close encounters or escapes over the explored timescales.
+
+The extreme case $m_e\rightarrow20m_e$ was included as a control because planet e is located near the middle of the system, where a strong perturbation can affect neighboring orbits on both sides of the chain. This value is not intended to be realistic, but to test whether sufficiently large mass perturbations can activate the instability criteria. The run generated a close encounter between planets f and g at $t_{\rm inst}=1.46\times10^4$ yr, showing that strong mass perturbations can still cause destabilization when they are large enough.
+
+Overall, these results suggest that mass is not a strongly restrictive parameter for short-term stability over the explored mass range. In the explored parameter space, mass appears less relevant than eccentricity and orbital period, which produced many more unstable configurations.
+ 
+\subsubsection{Inclination Perturbations}
+
+The nominal configuration provides a useful reference to test if deviations from this nearly coplanar geometry affect the short-term behavior of the modeled system. Unlike eccentricity or orbital period, inclination does not directly change the radial size of the orbits or the period ratios; instead, it modifies the three-dimensional geometry of the system.
+
+\begin{table}%[H]
+\centering
+\caption{Inclination-perturbation tests. The first row summarizes the original 100 years Monte Carlo inclination exploration, in which inclinations were varied over $0^\circ \leq i \leq 180^\circ$ both simultaneously and one planet at a time. The remaining rows show additional 1 Myr control runs in which one planet was placed at $i=-0.217^\circ$, corresponding to an approximately $90^\circ$ tilt relative to the nominal mean inclination of the system..
+}
+\label{tab:inclination_perturbations}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lllll}
+\hline
+Experiment & Perturbation & Time & Outcome & $t_{\rm inst}$ \\
+\hline
+Inclination MC & $0^\circ\leq i\leq180^\circ$ & 100 years & Stable & -- \\
+$i_b$ control & $i_b=-0.217^\circ$ & 1 Myr & Close b--c & 208.45 yr \\
+$i_c$ control & $i_c=-0.217^\circ$ & 1 Myr & Close b--c & 505.79 yr \\
+$i_d$ control & $i_d=-0.217^\circ$ & 1 Myr & Close c--d & 299.57 yr \\
+$i_e$ control & $i_e=-0.217^\circ$ & 1 Myr & Close d--e & 236.89 yr \\
+$i_f$ control & $i_f=-0.217^\circ$ & 1 Myr & Close d--e & 678.84 yr \\
+$i_g$ control & $i_g=-0.217^\circ$ & 1 Myr & Close d--e & $7.59\times10^3$ yr \\
+$i_h$ control & $i_h=-0.217^\circ$ & 1 Myr & Close f--g & $6.88\times10^4$ yr \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+The inclination exploration shows that the initial Monte Carlo runs did not produce unstable configurations, even though inclinations were varied over the full interval $0^\circ \leq i \leq 180^\circ$ (using a linear distribution of $\cos i \in [-1,1]$); the corresponding 100 years uniform results are reported in Table \ref{tab-appendix:inclination_exploration}. This indicates that large inclination changes are not enough to rule out short-term stability. A possible explanation is that inclination mainly modifies the three-dimensional orientation of the orbits without directly changing their radial separation, so the associated gravitational perturbations do not appear strong enough to generate close encounters. However, this result does not show how inclination variations affect the resonant structure itself, since these experiments only apply our instability criteria and do not track the detailed resonant dynamics.
+
+The $i=-0.217^\circ$ control tests were included to explore whether inclination perturbations can become important long-term. In these runs, each planet was placed on a strongly non-coplanar orbit and integrated for 1 Myr. All cases produced close encounters within the integration time, but the instability times range from $t_{\rm inst}=208.45$ yr to $6.88\times10^4$ yr. Thus, the inclination tests show short-term stability over the original 100 years Monte Carlo experiments, but the 1 Myr controls indicate that strongly non-coplanar configurations can still destabilize the system on longer timescales, potentially caused by gravitational torque effects, such as the Zeipel-Lidov-Kozai effect, which can significantly excite the eccentricities of orbiting bodies in the very-long term \citep{2022A&A...665A..62L}.
+
+The instability times show a clear contrast between the inner-to-middle controls and the two outermost controls. Perturbations of planets b through f become unstable within a few hundred years, whereas the $i_g=-0.217^\circ$ and $i_h=-0.217^\circ$ cases require much longer times, $7.59\times10^3$ yr and $6.88\times10^4$ yr, respectively. This suggests that the response to inclination perturbations depends on the location of the perturbed planet within the coupled architecture. One possible factor is the orbital separation between neighboring planets: if the outer links are effectively less restrictive, inclination perturbations there may take longer to produce close encounters. However, the present experiment does not isolate this effect. A more detailed interpretation would require comparing the mutual separations, Hill radius, and resonant structures for each case.
+
+The close encounters do not always involve the perturbed planet directly. In the b, c, d, and e controls, the first close encounter occurs in a neighboring pair that includes the perturbed planet. In the f, g, and h controls, however, the first close encounter appears in another link of the chain: d--e for the f and g controls, and f--g for the h control. This suggests that strong inclination perturbations can affect the compact architecture indirectly, although the present experiment does not isolate how the instability propagates through the system.
+
+\subsection{Model Limitations}
+The results presented in Sections \ref{subsec:3.1}, \ref{subsec:3.2}, and \ref{subsec:3.3} are useful for comparing how different parameters affect the short-term stability of the modeled TRAPPIST-1 architecture. However, they depend on the integration time, sampling strategy, instability criteria, and physical simplifications. For this reason, the stable fractions reported in the previous sections should be interpreted as properties of the numerical experiments, not as absolute stability probabilities for the real system. This section discusses these limitations to clarify the scope of the stability interpretation used throughout the analysis.
+
+\subsubsection{Integration Time Window}
+The main Monte Carlo experiments were integrated for 100 years. This window covers many orbital periods of all seven planets and is therefore useful for detecting prompt instabilities such as close encounters or strong scattering events. However, it is not long enough to establish secular or long-term stability. This limitation is especially relevant for configurations that remain stable over the 100 years window. Such configurations may still become unstable on longer timescales, as illustrated by the 1 Myr control tests performed for extreme mass and inclination perturbations. Therefore, the absence of instability in the main Monte Carlo experiments should be interpreted only as short-term survival.
+
+\subsubsection{Monte Carlo Sampling}
+The Monte Carlo experiments sample only selected regions of the TRAPPIST-1 parameter space. Each test depends on the chosen range, sampling distribution, and number of simulations. For this reason, the stable fractions should not be read as direct probabilities for the real system. Even so, this approach is useful because it allows us to compare which parameters make the system more or less sensitive to instability.
+
+\subsubsection{Parameter Correlations}
+In our Monte Carlo tests, the parameters were varied independently. This was done to make the effect of each parameter easier to identify. For example, changing only the eccentricity or only the period helps us see how that quantity affects the stability of the system. However, the real observational solution does not necessarily behave in this independent way. Parameters obtained from TTV modeling, such as periods, transit times, eccentricity components, inclinations, planetary masses, and stellar mass, can be correlated with one another. Because of this, our observational Monte Carlo experiments should be understood as controlled tests around the nominal configuration, rather than as a complete statistical sampling of the real TRAPPIST-1 solution. A more realistic statistical study would need to include the covariance between fitted parameters or sample directly from the full joint posterior distribution.
+
+\subsubsection{Physical Simplifications}
+Our model only includes the gravitational interaction between the star and the planets. This is a useful first approximation because the main goal of the work is to study how the compact architecture reacts to changes in orbital parameters. However, the real TRAPPIST-1 system may also be affected by additional physical processes that are not included here, such as tidal dissipation, rotational effects, general relativity, or long-term orbital damping. These effects are not expected to change the basic interpretation of strong close encounters in our simulations, but they could become important over longer timescales. Therefore, the results should be read as the behavior of a simplified gravitational model, rather than as a complete description of the real physical evolution of TRAPPIST-1. 
+
+We also simplify the treatment of the resonant structure. In this work, we compare neighboring period ratios, but we do not compute resonant angles or check whether they librate. Because of this, our analysis can show whether perturbations move the system away from its nominal near-commensurate architecture, but it should not be interpreted as a complete resonance analysis.
+
+\subsubsection{Scope of Stability Interpretation}
+In this work, a system is called stable if it survives the chosen integration time without triggering either a mutual-Hill-radius close encounter or the maximum-distance scattering threshold. This definition is practical because it allows us to classify many simulations in the same way. However, this does not mean that a stable case is guaranteed to remain stable indefinitely. It only means that, under our model assumptions and during the integration window used in that experiment, the configuration did not show the type of instability we were looking for. For this reason, the stability labels in the tables should be understood as numerical classifications, not as absolute statements about the real TRAPPIST-1 system. They are useful for comparing which perturbations make the modeled system more vulnerable to instability, but they do not prove long-term stability in a rigorous sense.
+
+\section{Conclusions}
+Our numerical experiments demonstrate that the TRAPPIST-1 architecture is robust against short-term instabilities driven by observational uncertainties and mass variations (up to $2m_{nominal}$). %All sampled configurations within the explored observational uncertainty ranging up to 5$\sigma$ survived the integration window. Uniform mass perturbations between zero and twice the nominal planetary masses also produced no instability in the main 100 years experiments and the individual mass-doubling controls remained stable over 1 Myr, although the extreme $20m_e$ control shows that sufficiently large mass changes can still destabilize the compact architecture. 
+The strongest restrictions were found for orbital eccentricity and orbital period. In the simultaneous eccentricity experiment, only one configuration out of $10^6$ remained stable, and the stable samples were preferentially concentrated at low eccentricities. For the orbital-period experiment, the simultaneous broad period exploration produced a stable fraction of $0.2995$, while the individual period tests showed lower stable fractions for the middle planets, especially $e$, $f$, and $g$. This is consistent with the fact that perturbing a middle planet modifies two neighboring period ratios instead of only one. Inclination perturbations did not produce a strong effect over the 100 years integrations, but the longer strongly non-coplanar control tests did produce close encounters within the 1 Myr integrations, suggesting that inclination can become relevant on longer timescales or under extreme configurations. Although the model includes physical simplifications and relies on controlled numerical experiments, these results suggest that the short-term survival of the modeled TRAPPIST-1 system is mainly associated with the combined preservation of low eccentricities, radial ordering, and the period-ratio architecture. Within this framework, stability is not a property of any single parameter alone, but of the compact architecture as a whole. To study this, future works could involve greater integration times, as well as studying more multi-planetary systems accompanied by a MCMC analysis for deeper correlation constraints between the physical parameters and the stability of systems like TRAPPIST-1.
+
+%\vfill\newpage
+
+\begin{acknowledgements}
+      Part of this work was made with the assistance of Large Language Models, such as Google DeepMind's Gemini 3.1 Pro or Anthropic's Claude 4.6 Sonnet. These tools were used to assist with draft translations and simple code optimizations. All of the methodology structure, results analysis, and final interpretations were fully done by the authors.
+\end{acknowledgements}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% WARNING
+% Please note that we have included the references below in
+% order to compile the document, but we ask you to:
+%
+% - use BibTeX with the regular commands:
+%   \bibliographystyle{aa} % style aa.bst
+%   \bibliography{Yourfile} % your references Yourfile.bib
+% - join the .bib files when you upload your source files
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{aa}
+\bibliography{biblio}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Appendices must be placed after   \end{thebibliography}
+% They will be placed automatically on a new page.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{appendix}
+
+%%%%%%%%%% Todo el código para una tabla del anexo
+\onecolumn
+\section{Comparing \textit{WHFast} with \textit{IAS15}}
+\begin{table}[!ht]
+    \centering
+    \caption{Number of stable simulations per parameter explored. All \textit{WHFast} and \textit{IAS15} non-eccentricity tests consisted of $10^4$ and $10^3$ simulations, respectively. The $e$ (All) test was iterated $10^6$ times using \textit{WHFast} and $10^5$ times using \textit{IAS15}. Tests for $e$ (b) and $e$ (h) consisted of $10^3$ simulations for both integrators using the exact same values of eccentricity on each iteration. ``\textit{All} ($n\sigma)$'' columns refer to a normal variation of all orbital parameters of TRAPPIST-1. Every parameter was varied within $1\sigma$-$5\sigma$ except for the eccentricity ($e$), which was varied uniformly between $0$ and $0.9999$. The number of iterations for each test was decided empirically based on previous external tests to account for the expected time they would take.}
+    \begin{tabular}{lrrrrrrrrr}
+    \hline
+        Integrator & All ($1\sigma$) & All ($5\sigma$) & $e$ (All) & $e$ (b) & $e$ (h) & Period ($1\sigma$) & Period ($5\sigma$) & $M_{\star}$ ($1\sigma$) & $M_{\star}$ ($5\sigma$) \\ \hline
+        WHFast & 10000 & 10000 & 1 & 314 & 228 & 10000 & 10000 & 10000 & 10000 \\ 
+        IAS15 & 1000 & 1000 & 0 & 323 & 236 & 1000 & 1000 & 1000 & 1000 \\ \hline
+    \end{tabular}
+    \label{tab:whfast_vs_ias15}
+\end{table}
+
+\section{Uniform variations of inclinations and masses during $100$ year integrations}
+\label{apen}
+\begin{table*}[h]
+\centering
+\caption{
+Stability results for experimental inclination and mass perturbations (varying $\cos i \in [-1,1]$ for a linear distribution, and $m_p \in [0, 2m_p]$). Each configuration was integrated for 100 years in $10^4$ simulations. Both tables show how an integration time of 100 years may not be enough to detect the effect of some parameter variations in the stability of TRAPPIST-1, which motivated our Myr experiments.
+}
+\label{tab:appendix_exploration}
+
+\begin{subtable}[t]{0.48\textwidth}
+\centering
+\caption{Inclination perturbations}
+\label{tab-appendix:inclination_exploration}
+
+\begin{tabular}{lrrr}
+\hline
+Experiment & $N_{\rm sim}$ & $N_{\rm unstable}$ & Stable fraction \\
+\hline
+All planets & 10000 & 0 & 1 \\
+b & 10000 & 0 & 1 \\
+c & 10000 & 0 & 1 \\
+d & 10000 & 0 & 1 \\
+e & 10000 & 0 & 1 \\
+f & 10000 & 0 & 1 \\
+g & 10000 & 0 & 1 \\
+h & 10000 & 0 & 1 \\
+\hline
+\end{tabular}
+
+\end{subtable}
+\hfill
+\begin{subtable}[t]{0.48\textwidth}
+\centering
+\caption{Planetary-mass perturbations}
+\label{tab-appendix:mass_exploration}
+
+\begin{tabular}{lrrr}
+\hline
+Experiment & $N_{\rm sim}$ & $N_{\rm unstable}$ & Stable fraction \\
+\hline
+All planets & 10000 & 0 & 1 \\
+b & 10000 & 0 & 1 \\
+c & 10000 & 0 & 1 \\
+d & 10000 & 0 & 1 \\
+e & 10000 & 0 & 1 \\
+f & 10000 & 0 & 1 \\
+g & 10000 & 0 & 1 \\
+h & 10000 & 0 & 1 \\
+\hline
+\end{tabular}
+
+\end{subtable}
+
+\end{table*}
+
+\section{Nominal parameters}
+
+\begin{table}[!ht]
+    \centering
+    \caption{Nominal values and uncertainties for the mass and orbital parameters of the star and planets in the TRAPPIST-1 system.}
+    \resizebox{\columnwidth}{!}{%
+    \begin{tabular}{lcccccc}
+    \hline
+        Object & Mass & Period (days) & $t_0$ (days) & $e\sin\omega$ & $e\cos\omega$ & Inclination ($^\circ$) \\ \hline
+        Star & $0.0898 \pm 0.0023\ M_\odot$ & -- & -- & -- & -- & -- \\ 
+        b & $1.374 \pm 0.069\ M_\oplus$ & $1.510826 \pm 0.000006$ & $7257.55044 \pm 0.00015$ & $0.00217 \pm 0.00244$ & $-0.00215 \pm 0.00332$ & $89.728 \pm 0.165$ \\ 
+        c & $1.308 \pm 0.056\ M_\oplus$ & $2.421937 \pm 0.000018$ & $7258.58728 \pm 0.00027$ & $0.00001 \pm 0.00171$ & $0.00055 \pm 0.00232$ & $89.778 \pm 0.118$ \\ 
+        d & $0.388 \pm 0.012\ M_\oplus$ & $4.049219 \pm 0.000026$ & $7257.06768 \pm 0.00067$ & $0.00267 \pm 0.00112$ & $-0.00496 \pm 0.00186$ & $89.896 \pm 0.077$ \\ 
+        e & $0.692 \pm 0.022\ M_\oplus$ & $6.101013 \pm 0.000035$ & $7257.82771 \pm 0.00041$ & $0.00461 \pm 0.00087$ & $0.00433 \pm 0.00149$ & $89.793 \pm 0.048$ \\ 
+        f & $1.039 \pm 0.031\ M_\oplus$ & $9.207540 \pm 0.000032$ & $7257.07426 \pm 0.00085$ & $-0.00051 \pm 0.00087$ & $-0.00840 \pm 0.00130$ & $89.740 \pm 0.019$ \\ 
+        g & $1.321 \pm 0.038\ M_\oplus$ & $12.352446 \pm 0.000054$ & $7257.71462 \pm 0.00103$ & $0.00128 \pm 0.00070$ & $0.00380 \pm 0.00112$ & $89.742 \pm 0.012$ \\ 
+        h & $0.326 \pm 0.020\ M_\oplus$ & $18.772866 \pm 0.000214$ & $7249.60676 \pm 0.00272$ & $-0.00002 \pm 0.00044$ & $-0.00365 \pm 0.00077$ & $89.805 \pm 0.013$ \\ \hline
+    \end{tabular}
+    }
+    \label{tab:trappist1_params}
+\end{table}
+
+\twocolumn
+%%%%%%%%%%%%%%%
+
+\end{appendix}
+\end{document}
